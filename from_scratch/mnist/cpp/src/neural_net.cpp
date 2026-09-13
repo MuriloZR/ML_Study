@@ -3,6 +3,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <numeric>
 //#include <omp.h>
 
 matrix carregar_arquivo(const std::string& caminho, int linhas, int colunas) {
@@ -73,28 +74,22 @@ static matrix relu(const matrix &Z) {
     return mres;
 }
 
-static void _softmax(matrix &Z) {
+static matrix softmax(const matrix &Z) {
+    matrix A {Z};
     double
-        max_z {*std::max_element(Z.m.begin(), Z.m.end())},
-        soma_exp {0.0};
+        max_z {std::ranges::max(A.m)},
+        soma_exp;
 
-    for (double &z : Z.m) {
-        z = std::exp(z - max_z);
-        soma_exp += z;
-    }
+    std::ranges::transform(A.m, A.m.begin(), [max_z](double z){ return std::exp(z - max_z); });
+    soma_exp = std::reduce(A.m.begin(), A.m.end(), 0.0);
+    std::ranges::transform(A.m, A.m.begin(), [soma_exp](double z){ return z/soma_exp; });
 
-    for (auto &z : Z.m) z/= soma_exp;
-}
-
-static matrix softmax(matrix Z) {
-    _softmax(Z);
-    return Z;
+    return A;
 }
 
 static int argmax(const matrix &A) {
-    auto max_it = std::max_element(A.m.begin(), A.m.end());
-    int classe_predominante = std::distance(A.m.begin(), max_it);
-    return classe_predominante;
+    auto max_it = std::ranges::max_element(A.m);
+    return std::distance(A.m.begin(), max_it);
 }
 
 previsao prever(const matrix& X, const RedeNeural& rede) {
