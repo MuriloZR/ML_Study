@@ -17,6 +17,7 @@ venv/
 *.csv
 *.xlsx
 datasets/
+*.bin
 
 from_scratch/mnist/cpp/build/
 *.out
