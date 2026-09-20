@@ -13,7 +13,7 @@ def relu_grad(z):
 
 # Calcula qual das saídas é a mais predominante
 def softmax(z):
-    z_estavel = z - np.max(0, axis=0, keepdims=True)
+    z_estavel = z - np.max(z, axis=0, keepdims=True)
     e = np.exp(z_estavel)
     return e/np.sum(e, axis=0, keepdims=True)
 
